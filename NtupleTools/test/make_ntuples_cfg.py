@@ -55,12 +55,14 @@ from FinalStateAnalysis.NtupleTools.rerun_matchers import rerun_matchers
 from FinalStateAnalysis.NtupleTools.rerun_QGJetID import rerun_QGJetID
 from FinalStateAnalysis.NtupleTools.rerun_Jets import rerun_jets
 import PhysicsTools.PatAlgos.tools.helpers as helpers
+import sys
 
 process = cms.Process("Ntuples")
 
 process.options = cms.untracked.PSet(
     allowUnscheduled = cms.untracked.bool(True)
 )
+
 
 import FinalStateAnalysis.Utilities.TauVarParsing as TauVarParsing
 options = TauVarParsing.TauVarParsing(
@@ -70,7 +72,7 @@ options = TauVarParsing.TauVarParsing(
     rerunMCMatch=False,
     eventView=0,  # Switch between final state view (0) and event view (1)
     passThru=0,  # Turn off preselections
-    dump=0,  # If one, dump process python to stdout
+    dumpConfigToFile=0,  # If one, dump process python to stdout
     verbose=0,  # If one print out the TimeReport
     noPhotons=0,  # If one, don't assume that photons are in the PAT tuples.
     svFit=0,  # If one, SVfit appropriate lepton pairs.
@@ -87,6 +89,7 @@ options = TauVarParsing.TauVarParsing(
     runDQM=0,
     hzz=0,
     paramFile='',
+    saveConfigFile=0
 )
 
 options.register(
@@ -584,5 +587,9 @@ if options.verbose:
 if options.passThru:
     set_passthru(process)
 
-if options.dump:
-    print process.dumpPython()
+if options.dumpConfigToFile:
+    config_file = open("FSAConfig" + 
+            ''.join("_" + fs for fs in final_states) + ".py", "w")
+    config_file.write('# CMSSW config file created from FSA with command: %s\n\n' 
+            % ' '.join(sys.argv))
+    config_file.write(process.dumpPython())
